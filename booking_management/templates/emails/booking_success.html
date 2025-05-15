@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<!-- <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+        }
+        .header img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        .details {
+            margin-top: 20px;
+        }
+        .details p {
+            margin: 5px 0;
+        }
+        .qr-code {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ movie_poster }}" alt="{{movie_title}}" style="width: 100%; max-width: 300px; height: auto;">
+            <h2>Thank you for your booking!</h2>
+
+        </div>
+        <div class="details">
+            <p><strong>Booking ID:</strong> {{ booking_id }}</p>
+            <p><strong>Movie Title:</strong> {{ movie_title }}</p>
+            <p><strong>Date:</strong> {{ show_date }}</p>
+            <p><strong>Time:</strong> {{ show_time }}</p>
+            <p><strong>Theater:</strong> {{ theater_name }}</p>
+            <p><strong>Screen:</strong> {{ screen_name }}</p>
+            <p><strong>Seats:</strong> {{ seats }}</p>
+            <p><strong>Total:</strong> Rs {{ total }}</p>
+        </div>
+        <div class="qr-code">
+            <img src="{{ qr_code }}" alt="QR Code Not Found" style="width: 150px; height: 150px;">
+            <p>Scan this QR code at the theater.</p>
+
+        </div>
+    </div>
+</body>
+</html> -->
+
+
+
+<html>
+  <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+    <div style="max-width: 4/5; margin: auto; background: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
+      <div style="display: flex; background: #fff;">
+        <!-- Left Section - Poster -->
+        <div style="flex: 1; padding: 16px;">
+          <img src="{{ movie.poster_path }}" alt="{{ movie.title }}" style="width: 100%; height: auto; border-radius: 8px;" />
+        </div>
+        <!-- Center Section - Details -->
+        <div style="flex: 2; padding: 16px; font-size: 12px;">
+          <h1 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">{{ movie.title }}</h1>
+          <p style="color: #555; margin: 0;">{{ selectedTheater.name }}</p>
+          <p style="color: #555; margin: 0;">{{ movie.genres|join:', ' }}</p>
+          <p style="color: #555; margin-bottom: 16px;">{{ selectedTimeOg }} | {{ formattedDate }}</p>
+          <p style="margin-bottom: 8px;">Quantity: {{ seatIdentifiers|length }}</p>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px;">
+            <span style="font-size: 16px; color: #555;">🎟️</span>
+            <span>{{ selectedScreen }} - {{ seatIdentifiers }}</span>
+          </div>
+          <div style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between;">
+              <span>Ticket price</span>
+              <span>Rs {{ ticketTotal|floatformat:2 }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>Snacks</span>
+              <span>Rs {{ snackTotal|floatformat:2 }}</span>
+            </div>
+          </div>
+          <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #555;">AMOUNT PAID</span>
+            <span style="font-size: 24px; font-weight: bold;">Rs {{ total|floatformat:2 }}</span>
+          </div>
+        </div>
+
+        <div style="flex: 1; padding: 16px;">
+          <img src="{{ QrCodeUrl }}" alt="QR Code" style="width: 100%; margin-bottom: 16px;" />
+          <div style="text-align: center;">
+            <div style="font-size: 12px; color: #777;">BOOKING ID</div>
+            <div style="font-family: monospace; font-weight: bold;">{{ BookingId }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Warning Message Section -->
+      <div style="padding: 20px; background-color: #fdf6f6; border-top: 2px solid #ff9999; text-align: center; font-family: Arial, sans-serif; border-radius: 0 0 8px 8px;">
+        <!-- Greeting -->
+        <h2 style="margin-bottom: 10px; color: #333; font-weight: bold;">Hello, Movie Enthusiast!</h2>
+        <p style="color: #555; font-size: 14px; margin: 0;">We hope you're as excited about the show as we are!</p>
+      
+        <!-- Cancellation Warning -->
+        <div style="margin-top: 20px; padding: 20px; background-color: #fff5f5; border: 1px solid #ffcccc; border-radius: 8px; display: inline-block; max-width: 600px;">
+          <h3 style="color: #e60000; margin-bottom: 10px;">⚠️ Important Cancellation Notice ⚠️</h3>
+          <p style="color: #555; font-size: 14px; margin-bottom: 10px;">
+            Cancellation is only available up to <strong>4 hours before the show starts</strong>. Please ensure that you cancel within this time frame to avoid missing out on a refund.
+          </p>
+          <p style="color: #555; font-size: 14px; margin-bottom: 10px;">
+            Once you cancel, your tickets will be released for others to purchase, and this action <strong>cannot be reversed</strong>.
+          </p>
+          <p style="color: #555; font-size: 14px;">
+            If you're sure about canceling your booking, please use the button below:
+          </p>
+          <a href="{{ cancellation_url }}" 
+             style="display: inline-block; padding: 12px 25px; margin-top: 15px; background-color: #e60000; color: #fff; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: bold; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            Cancel Booking
+          </a>
+        </div>
+      
+        <!-- Friendly Note -->
+        <div style="margin-top: 30px; color: #555; font-size: 14px;">
+          <p style="margin-bottom: 5px;">If you have any questions or concerns, feel free to contact our support team. We're here to help!</p>
+          <p style="margin-bottom: 0;">Thank you for choosing Cinemato. 🎥🍿</p>
+        </div>
+      </div>
+      
+    </div>
+  </body>
+</html>
+
