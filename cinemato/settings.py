@@ -36,7 +36,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['cinemato.site','www.cinemato.site','127.0.0.1', 'localhost', '13.127.240.102', '13.233.253.141', 'api.cinemato.site']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '56.228.35.95', 'api.hi5entertainments.in']
 
 
 # Application definition
