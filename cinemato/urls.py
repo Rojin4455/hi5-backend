@@ -32,6 +32,7 @@ urlpatterns = [
     path('screen/',include('screen_management.urls')),
     path('booking/', include('booking_management.urls')),
     path('notification/', include('notification.urls')),
+    path('subscription/', include('subscription_management.urls')),
 
 
 ]

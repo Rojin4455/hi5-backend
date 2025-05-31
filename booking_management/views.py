@@ -26,7 +26,7 @@ import cloudinary.uploader
 from django.db.models import Q
 from decimal import Decimal
 from accounts.models import User
-
+from subscription_management.models import Subscription
 
 
 
@@ -224,6 +224,8 @@ class AddedSnacksClass(APIView):
 @api_view(['POST'])
 def create_payment_intent(request):
     data = request.data
+    
+
     try:
         with transaction.atomic():
             user = request.user if request.user.is_authenticated else None
@@ -237,16 +239,28 @@ def create_payment_intent(request):
             total = sum(float(seat['seat']['tier_price']) for seat in selected_seats) + \
                     sum(float(snack['price']) * data['quantities'][str(snack['id'])] for snack in added_snacks)
             theater_obj = Theater.objects.get(id=theater['id'])
+            print("selecte count: ", sum(float(seat['seat']['tier_price']) for seat in selected_seats))
+            convenience = sum(float(seat['seat']['tier_price']) for seat in selected_seats) * 5 / 100
+            print("convieniancve: ", convenience)
             try:
                 user = User.objects.get(email=data.get('email'))
             except:
                 pass
             screen = Screen.objects.get(theater__id=theater_obj.id, name__iexact=screen_name)
+            user_subscription = Subscription.objects.filter(user=user).first()
+            today_weekday = timezone.now().strftime('%a').upper()
+
+
+            # print("selected seats", selected_seats)
+            compass_discount = 0
+            if user_subscription:
+                if user_subscription.plan.valid_days == ["ALL"] or today_weekday in user_subscription.plan.valid_days:
+                        compass_discount =  int(user_subscription.plan.max_discount_per_ticket)*2 if len(selected_seats) >= 2 else int(user_subscription.plan.max_discount_per_ticket)   
             booking = Booking.objects.create(
                 user=user,
                 email=data.get('email'),
                 phone=data.get('phone', None),
-                total=total,
+                total=(total + convenience)-compass_discount,
                 theater_name=theater['name'],
                 theater_address=theater['address'],
                 theater_id = theater_obj.id,
@@ -283,8 +297,10 @@ def create_payment_intent(request):
                 )
 
             line_items = []
-
+            ticket_total = 0
             for seat in selected_seats:
+                seat_price = int(seat['seat']['tier_price'].split(".")[0])
+                ticket_total += seat_price
                 line_items.append({
                     'price_data': {
                         'currency': 'inr',
@@ -297,8 +313,28 @@ def create_payment_intent(request):
                     'quantity': 1,
                 })
 
+            convenience_fee = int(ticket_total * 0.05)  # in INR
+
+            line_items.append({
+                'price_data': {
+                    'currency': 'inr',
+                    'product_data': {
+                        'name': 'Convenience Fee (5%)',
+                    },
+                    'unit_amount': convenience_fee * 100,  # in paise
+                },
+                'quantity': 1,
+            })
+
+            if compass_discount and compass_discount > 0:
+                coupon = stripe.Coupon.create(
+                    name="Compass Discount",
+                    amount_off=int(float(compass_discount) * 100),  # amount_off in paise
+                    currency="inr",
+                    duration="once",
+                )
+
             for snack in added_snacks:
-                print("snack: ",snack)
                 line_items.append({
                     'price_data': {
                         'currency': 'inr',
@@ -315,6 +351,9 @@ def create_payment_intent(request):
                 payment_method_types=['card'],
                 mode='payment',
                 line_items=line_items,
+                discounts=[{
+                    'coupon': coupon.id
+                }],
                 success_url=f"{settings.BASE_API_URL}/booking/payment-success/{booking.id}",
                 cancel_url=f"{settings.BASE_API_URL}/booking/payment-cancel/{booking.id}",
 
@@ -378,7 +417,7 @@ class PaymentSuccessClass(APIView):
             return Response({"message": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
-        
+
 
 
 

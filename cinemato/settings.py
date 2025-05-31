@@ -65,6 +65,7 @@ DEFAULT_APPS = [
     'booking_management',
     'channels',
     'notification',
+    'subscription_management',
     # 'notification.apps.NotificationConfig',
 
 ]
@@ -384,5 +385,6 @@ CELERY_BEAT_SCHEDULE = {
 
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY')
+DJANGO_BASE_FRONTEND_URL = config('DJANGO_BASE_FRONTEND_URL')
 
 stripe.api_key = config('STRIPE_SECRET_KEY')
