@@ -88,7 +88,7 @@ CHANNEL_LAYERS = {
     },
 }
 
-CSRF_TRUSTED_ORIGINS = ['https://api.cinemato.site']
+CSRF_TRUSTED_ORIGINS = ['https://api.hi5entertainments.in']
 
 
 
@@ -141,9 +141,8 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
-    "https://cinemato-frontend-qj62-test3.vercel.app",
-    "https://cinemato-frontend.vercel.app",
-    "https://api.cinemato.site",
+    "https://api.hi5entertainments.in",
+    "https://com-pass-frontend.vercel.app/"
 ]
 
 CORS_ALLOW_HEADERS = ['RefreshToken','authorization','x-csrftoken','content-type']
