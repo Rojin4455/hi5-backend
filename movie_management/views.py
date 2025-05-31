@@ -175,8 +175,9 @@ class LocationMoviesView(APIView):
             return Response({"error": "User location not found.","data":data},status=status.HTTP_404_NOT_FOUND)
         nearby_theaters = get_nearby_theaters(lat, lng)
         print("nearby theaters: ",nearby_theaters)
+        tomorrow = date.today() + timedelta(days=1)
         now_showing_movies = MovieSchedule.objects.filter(
-        start_date__lte=date.today(),
+        start_date__lte=tomorrow,
         end_date__gte = date.today(),
         showtime__screen__theater__in=nearby_theaters
         ).values('movie').distinct()
