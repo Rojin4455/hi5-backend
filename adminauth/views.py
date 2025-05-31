@@ -105,7 +105,7 @@ class GetTheaterOwnersView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        owners = User.objects.filter(is_owner=True, is_approved=True)
+        owners = User.objects.filter(is_owner=True)
         print(owners)
         serializer = TheaterOwnerSerializer(owners, many=True)  # Serialize the data
         return Response({"message": "All owners retrieved", "allOwners": serializer.data}, status=status.HTTP_200_OK)
