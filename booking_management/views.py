@@ -246,21 +246,24 @@ def create_payment_intent(request):
                 user = User.objects.get(email=data.get('email'))
             except:
                 pass
-            screen = Screen.objects.get(theater__id=theater_obj.id, name__iexact=screen_name)
+            screen = Screen.objects.filter(theater__id=theater_obj.id, name__iexact=screen_name).first()
             user_subscription = Subscription.objects.filter(user=user).first()
             today_weekday = timezone.now().strftime('%a').upper()
 
 
             # print("selected seats", selected_seats)
             compass_discount = 0
+            merchant_discount = 0
             if user_subscription:
                 if user_subscription.plan.valid_days == ["ALL"] or today_weekday in user_subscription.plan.valid_days:
-                        compass_discount =  int(user_subscription.plan.max_discount_per_ticket)*2 if len(selected_seats) >= 2 else int(user_subscription.plan.max_discount_per_ticket)   
+                        compass_discount =  int(user_subscription.plan.max_discount_per_ticket)*2 if len(selected_seats) >= 2 else int(user_subscription.plan.max_discount_per_ticket) 
+                        merchant_discount =  89*2 if len(selected_seats) >= 2 else 89
+
             booking = Booking.objects.create(
                 user=user,
                 email=data.get('email'),
                 phone=data.get('phone', None),
-                total=(total + convenience)-compass_discount,
+                total=(total + convenience)-compass_discount-merchant_discount,
                 theater_name=theater['name'],
                 theater_address=theater['address'],
                 theater_id = theater_obj.id,
@@ -327,9 +330,18 @@ def create_payment_intent(request):
             })
 
             if compass_discount and compass_discount > 0:
-                coupon = stripe.Coupon.create(
+                compass_coupon = stripe.Coupon.create(
                     name="Compass Discount",
-                    amount_off=int(float(compass_discount) * 100),  # amount_off in paise
+                    amount_off=int(float(compass_discount+merchant_discount) * 100),  # amount_off in paise
+                    currency="inr",
+                    duration="once",
+                )
+
+            
+            if merchant_discount and merchant_discount > 0:
+                merchant_coupon = stripe.Coupon.create(
+                    name="Merchant Discount",
+                    amount_off=int(float(merchant_discount) * 100),  # amount_off in paise
                     currency="inr",
                     duration="once",
                 )
@@ -352,7 +364,7 @@ def create_payment_intent(request):
                 mode='payment',
                 line_items=line_items,
                 discounts=[{
-                    'coupon': coupon.id
+                    'coupon': compass_coupon.id
                 }],
                 success_url=f"{settings.BASE_API_URL}/booking/payment-success/{booking.id}",
                 cancel_url=f"{settings.BASE_API_URL}/booking/payment-cancel/{booking.id}",

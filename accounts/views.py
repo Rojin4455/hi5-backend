@@ -187,7 +187,7 @@ class ResendOtpView(APIView):
 
                 if email:
                     send_mail(
-                        'Cinemato - Your OTP Code',
+                        'Compass - Your OTP Code',
                         f'Your OTP code is {otp_code}',
                         project_settings.DEFAULT_FROM_EMAIL,
                         [email],
