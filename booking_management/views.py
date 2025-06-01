@@ -329,6 +329,8 @@ def create_payment_intent(request):
                 'quantity': 1,
             })
 
+            coupon = None
+
             if compass_discount and compass_discount > 0:
                 coupon = stripe.Coupon.create(
                     name="Compass Discount",
@@ -355,9 +357,7 @@ def create_payment_intent(request):
                 payment_method_types=['card'],
                 mode='payment',
                 line_items=line_items,
-                discounts=[{
-                    'coupon': coupon.id
-                }],
+                discounts=[{'coupon': coupon.id}] if coupon else [],
                 success_url=f"{settings.BASE_API_URL}/booking/payment-success/{booking.id}",
                 cancel_url=f"{settings.BASE_API_URL}/booking/payment-cancel/{booking.id}",
 
