@@ -246,7 +246,7 @@ def create_payment_intent(request):
                 user = User.objects.get(email=data.get('email'))
             except:
                 pass
-            screen = Screen.objects.get(theater__id=theater_obj.id, name__iexact=screen_name)
+            screen = Screen.objects.filter(theater__id=theater_obj.id, name__iexact=screen_name).first()
             user_subscription = Subscription.objects.filter(user=user).first()
             today_weekday = timezone.now().strftime('%a').upper()
 
