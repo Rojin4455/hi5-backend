@@ -246,7 +246,7 @@ def create_payment_intent(request):
                 user = User.objects.get(email=data.get('email'))
             except:
                 pass
-            screen = Screen.objects.filter(theater__id=theater_obj.id, name__iexact=screen_name).first()
+            screen = Screen.objects.get(theater__id=theater_obj.id, name__iexact=screen_name)
             user_subscription = Subscription.objects.filter(user=user).first()
             today_weekday = timezone.now().strftime('%a').upper()
 
@@ -330,21 +330,13 @@ def create_payment_intent(request):
             })
 
             if compass_discount and compass_discount > 0:
-                compass_coupon = stripe.Coupon.create(
+                coupon = stripe.Coupon.create(
                     name="Compass Discount",
                     amount_off=int(float(compass_discount+merchant_discount) * 100),  # amount_off in paise
                     currency="inr",
                     duration="once",
                 )
-
-            
-            if merchant_discount and merchant_discount > 0:
-                merchant_coupon = stripe.Coupon.create(
-                    name="Merchant Discount",
-                    amount_off=int(float(merchant_discount) * 100),  # amount_off in paise
-                    currency="inr",
-                    duration="once",
-                )
+                
 
             for snack in added_snacks:
                 line_items.append({
@@ -364,7 +356,7 @@ def create_payment_intent(request):
                 mode='payment',
                 line_items=line_items,
                 discounts=[{
-                    'coupon': compass_coupon.id
+                    'coupon': coupon.id
                 }],
                 success_url=f"{settings.BASE_API_URL}/booking/payment-success/{booking.id}",
                 cancel_url=f"{settings.BASE_API_URL}/booking/payment-cancel/{booking.id}",
