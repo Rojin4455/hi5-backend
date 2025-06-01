@@ -67,7 +67,6 @@ DEFAULT_APPS = [
     'notification',
     'subscription_management',
     # 'notification.apps.NotificationConfig',
-
 ]
 
 CUSTOM_APPS = [
@@ -142,7 +141,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
     "https://api.hi5entertainments.in",
-    "https://com-pass-frontend.vercel.app"
+    "https://com-pass-frontend.vercel.app",
+    "https://www.compas.co.in"
 ]
 
 CORS_ALLOW_HEADERS = ['RefreshToken','authorization','x-csrftoken','content-type']
